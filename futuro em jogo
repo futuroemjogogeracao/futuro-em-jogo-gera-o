@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Futuro em Jogo</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light;--bg:#e6f2d2;--bg2:#c6e19b;--card:#fffdf3;--ink:#24351a;--mut:#58693f;--acc:#e8872b;--acc2:#2f8f4e;--line:#b4cc8a;--sh:#00000026}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0f1a11;--bg2:#1b2e1d;--card:#203423;--ink:#eaf3dc;--mut:#a3ba90;--acc:#f0a03c;--acc2:#5fcf80;--line:#38583b;--sh:#0009}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0f1a11;--bg2:#1b2e1d;--card:#203423;--ink:#eaf3dc;--mut:#a3ba90;--acc:#f0a03c;--acc2:#5fcf80;--line:#38583b;--sh:#0009}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;background:linear-gradient(var(--bg),var(--bg2));color:var(--ink);overflow-y:auto}
+#app{max-width:480px;margin:0 auto;padding:14px 14px 30px}
+.logo{font-size:64px;text-align:center;margin-top:10px}
+h1{font-size:44px;line-height:1;text-align:center;margin:4px 0 12px;letter-spacing:1px;color:var(--acc2);text-shadow:0 3px 0 var(--sh)}
+.sub,.mut{text-align:center;color:var(--mut);line-height:1.45}
+input{width:100%;padding:14px;border-radius:14px;border:3px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:18px;margin:14px 0}
+.btn{width:100%;padding:15px;border:0;border-radius:16px;background:var(--acc);color:#fff;font:inherit;font-weight:800;font-size:19px;box-shadow:0 5px 0 #a8580d;cursor:pointer}
+.btn.g{background:var(--acc2);box-shadow:0 5px 0 #1b5e31;margin-top:14px}
+.btn:active,.opt:active{transform:translateY(3px);box-shadow:none}
+.hud{display:flex;justify-content:space-between;font-weight:800}
+.bar{height:12px;background:var(--line);border-radius:9px;overflow:hidden;margin:8px 0}
+.bar i{display:block;height:100%;background:var(--acc2);transition:width .4s}
+.town{font-size:24px;min-height:34px;letter-spacing:3px}
+.card{background:var(--card);border:3px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 5px 0 var(--sh);margin:8px 0 14px}
+.card small{display:inline-block;background:var(--acc);color:#fff;border-radius:9px;padding:2px 9px;font-weight:700;font-size:12px;text-transform:uppercase}
+h2{margin:8px 0 6px;font-size:22px}
+.card p{margin:0;line-height:1.5}
+.opt{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;margin:0 0 10px;padding:12px;border-radius:14px;border:3px solid var(--line);background:var(--card);color:var(--ink);font:inherit;line-height:1.35;box-shadow:0 4px 0 var(--sh);cursor:pointer}
+.opt b{flex:none;width:28px;height:28px;border-radius:50%;background:var(--acc2);color:#fff;display:grid;place-items:center}
+.opt.on{border-color:var(--acc);background:var(--bg2)}
+.map{width:100%;height:auto;border-radius:14px;border:3px solid var(--line);background:#fff;margin-top:8px}
+.ch{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.ch span:last-child{font-weight:800;white-space:nowrap}
+.big{font-size:26px;font-weight:800;color:var(--acc);margin:4px 0}
+details{background:var(--card);border:3px solid var(--line);border-radius:14px;padding:10px 12px;margin:0 0 10px}
+summary{font-weight:800;cursor:pointer}
+details p,details li{line-height:1.45;margin:6px 0}
+details ol,details ul{padding-left:20px;margin:6px 0}
+.card p{margin:0 0 8px}
+</style></head>
+<body><div id="app"></div>
+<script>
+const K={
+SD:{n:"Social-democracia",s:"esquerda libertária",d:[-1,1],t:"Mais Estado na economia (serviços públicos, impostos progressivos) com muita liberdade pessoal e direitos garantidos."},
+ES:{n:"Esquerda estatista",s:"esquerda autoritária",d:[-1,-1],t:"O Estado ou o coletivo comanda a economia e a vida social, e a igualdade vem antes das liberdades individuais."},
+DL:{n:"Direita libertária",s:"liberal",d:[1,1],t:"Mercado livre e Estado pequeno, com a liberdade individual em primeiro lugar."},
+DC:{n:"Direita conservadora",s:"autoritária",d:[1,-1],t:"Mercado e propriedade privada, mas com ordem, tradição e autoridade acima das liberdades pessoais."}};
+const E={
+SD:"<p><b>Social-democracia</b> (esquerda libertária) é o “capitalismo com rédea curta”: o mercado continua existindo, mas o Estado regula, cobra mais de quem tem mais e usa esse dinheiro em saúde, educação e proteção social, sempre respeitando as liberdades e os direitos civis.</p>",
+ES:"<p><b>Esquerda estatista</b> (esquerda autoritária) defende que o Estado, ou um comando coletivo, controle a economia, planeje a produção e distribua os bens, aceitando limitar liberdades e oposição em nome da igualdade e da unidade.</p>",
+DL:"<p><b>Direita libertária</b> (liberalismo) quer pouco Estado na economia e na vida pessoal: livre iniciativa, propriedade privada, concorrência e liberdade individual em primeiro lugar.</p>",
+DC:"<p><b>Direita conservadora</b> defende o mercado e a propriedade privada, mas dá muito peso à tradição, à família, à hierarquia e à ordem, aceitando que o Estado reforce valores e autoridade.</p><p>No jogo, essas alternativas aparecem em versão firme para facilitar o debate. Na vida real, nem toda pessoa conservadora é autoritária.</p>",
+C:"<p><b>Centro</b>: nenhum quadrante venceu com folga. O país mistura ideias de lados diferentes, como mais Estado em algumas áreas e mais mercado em outras. Pode ser busca de equilíbrio ou uma mistura que ainda não combinou entre si: vale discutir qual dos dois.</p>",
+F:"<p><b>Fronteira</b>: seu país caiu exatamente em cima de uma linha do mapa, dividido entre dois quadrantes que têm algo em comum.</p>"};
+const R={SD:"O Estado assume novas responsabilidades. Nas praças, o assunto do dia são os impostos e os serviços públicos.",ES:"O comando passa ao Estado ou ao coletivo. Há assembleias que viram a noite e regras novas para todo mundo.",DL:"O mercado ganha espaço e surgem novos negócios. Cada pessoa passa a decidir mais por conta própria.",DC:"A autoridade se reforça e as tradições ganham peso. Nem todo mundo no acampamento concorda."};
+const N=["O primeiro dia termina. As luzes do acampamento se acendem e todos esperam para ver o que vem depois.","Chegam notícias de acampamentos vizinhos: todos estão decidindo como viver.","Uma chuva forte enche os reservatórios. Antes da AMAD-10, isso era só um dia de tempo ruim.","As crianças desenham o futuro nas paredes do galpão. Cada uma imagina um país diferente.","Uma assembleia improvisada reúne gente de todos os bairros. Tem gritaria, mas também tem escuta.","Rádios velhas voltam a funcionar. O país começa a ouvir o que pensa.","Um viajante pergunta: “Quem manda aqui?”. Ninguém responde na hora.","As colheitas melhoram e o vilarejo ganha mais casas.","Falta pouco. Todo mundo sabe que as escolhas feitas até agora já deixaram marcas.","O décimo dia termina. O país já tem cara, jeito e regras. Resta descobrir qual."];
+// [tema, título, texto, [A,B,C,D], gabarito da ordem original]
+const Q=[
+["Distribuição de recursos e direitos sociais","O hospital das últimas esperanças","Depois da pandemia, o país voltou a funcionar, mas os hospitais ainda estão cheios e faltam vagas para os pacientes. Algumas pessoas influentes querem receber atendimento primeiro. O governo precisa decidir quem terá prioridade.",["Criar um sistema público de saúde para todos, priorizando quem mais precisa e aumentando os investimentos aos poucos.","Fazer com que os serviços sejam administrados coletivamente e distribuir os recursos de acordo com as necessidades das pessoas.","Aumentar o número de clínicas particulares e contratar profissionais individualmente, mantendo uma ajuda básica de emergência.","Dar prioridade a autoridades, policiais e famílias consideradas importantes para manter o governo funcionando."],"SD ES DL DC"],
+["Distribuição de recursos e direitos sociais","A fome dentro de casa","O país está se recuperando, mas milhares de famílias ainda não conseguem comprar alimentos. Alguns governantes acreditam que a ajuda deve durar pouco tempo, enquanto movimentos populares defendem que ninguém passe fome enquanto houver recursos para ajudar.",["Criar uma ajuda financeira básica e manter a proteção social, aumentando os investimentos conforme necessário.","Compartilhar os recursos essenciais e distribuir os produtos de acordo com as necessidades de cada pessoa.","Ajudar principalmente as pessoas em situação de pobreza extrema e incentivar a contratação de serviços particulares.","Condicionar a ajuda do governo à obediência às autoridades e à participação em serviços para o país."],"SD ES DL DC"],
+["Trabalho, propriedade e organização social","A fábrica de alimentos","Uma fábrica abandonada pode produzir muitos alimentos. Um empresário oferece reconstruí-la, mas quer ser o único dono e ter liberdade para decidir os salários e os preços. Os antigos trabalhadores querem participar das decisões da fábrica.",["Permitir que empresas particulares administrem a fábrica, contratando funcionários e fiscalizando as condições de trabalho.","Fazer com que a fábrica pertença a todos os trabalhadores, que irão administrá-la juntos.","Transformar a fábrica em uma empresa do governo, com metas de produção de alimentos, direitos para os trabalhadores e participação da população nas decisões.","Entregar a fábrica a empresários aliados do governo, fazendo com que a produção siga as prioridades do país."],"DL ES SD DC"],
+["Trabalho, propriedade e organização social","A greve dos trabalhadores","Os trabalhadores responsáveis pela água e pela energia fazem uma greve depois de meses sem receber salários. O governo diz que a greve coloca o país em perigo. Os sindicatos exigem pagamento, melhores condições de trabalho e participação nas decisões.",["Reconhecer o direito à greve e negociar salários, horários e condições de trabalho com os representantes dos trabalhadores.","Passar o controle dos serviços para os próprios trabalhadores, que irão organizar e administrar tudo juntos.","Resolver o problema por meio de acordos ou decisões da Justiça, evitando que o governo interfira demais.","Proibir a greve durante a reconstrução do país e obrigar todos a voltarem ao trabalho."],"SD ES DL DC"],
+["Economia, riqueza e propriedade","A dívida do novo país","O país precisa reconstruir pontes, hospitais e redes de energia. Alguns credores oferecem empréstimos, mas exigem que o governo diminua os gastos com serviços públicos para liberar o dinheiro.",["Renegociar as dívidas e continuar oferecendo serviços essenciais, cobrando de cada um de acordo com o que pode pagar.","Colocar o sistema financeiro sob controle do governo e decidir coletivamente onde investir o dinheiro.","Diminuir os gastos e os impostos, controlar as contas do governo e buscar dinheiro de empresas particulares.","Usar a maior parte dos recursos para segurança e áreas consideradas importantes, deixando outros serviços em segundo plano."],"SD ES DL DC"],
+["Direitos, liberdades e valores sociais","A imprensa sob vigilância","Um jornal publica documentos que mostram casos de corrupção no governo. O líder do país afirma que essas notícias prejudicam a nação. O parlamento precisa decidir se os jornais terão liberdade para publicar informações ou se poderão ser censurados.",["Garantir a liberdade dos jornais, permitir investigações independentes e exigir transparência do governo.","Aumentar a participação da população nos meios de comunicação e fortalecer jornais e rádios comunitárias.","Garantir que os jornais tenham liberdade para publicar suas notícias, mas responsabilizar aqueles que desrespeitarem a lei.","Fechar jornais considerados contrários ao governo e punir jornalistas que publicarem notícias contra os interesses do país."],"SD ES DL DC"],
+["Direitos, liberdades e valores sociais","O casamento proibido","Um casal de grupos sociais diferentes pede o reconhecimento legal do seu casamento. Parte da população acredita que essa união não combina com os costumes tradicionais, enquanto outras pessoas defendem que todos devem ter os mesmos direitos.",["Garantir que todos tenham os mesmos direitos e impedir a discriminação, sem obrigar ninguém a seguir um único modelo de família.","Garantir direitos iguais para todos, combater as desigualdades sociais e permitir a participação coletiva nas decisões.","Evitar que o governo interfira nos relacionamentos e proteger a liberdade de cada pessoa.","Permitir legalmente apenas os casamentos que estejam de acordo com os costumes tradicionais."],"SD ES DL DC"],
+["Sociedade, diversidade e meio ambiente","A água foi privatizada","Uma empresa controla a água e cobra preços altos. Alguns bairros recebem pouca água, enquanto as indústrias continuam abastecidas.",["Controlar os preços e garantir água para todos.","Deixar o controle da água nas mãos da população e distribuir conforme a necessidade.","Manter a empresa privada, mas criar regras para garantir qualidade e concorrência.","Dar prioridade à água para regiões e grupos importantes para o governo."],"SD ES DL DC"],
+["Poder político, democracia e participação popular","O líder quer governar sozinho","O líder diz que o parlamento está atrapalhando a reconstrução e pede poderes sem limites. Algumas pessoas apoiam, outras têm medo de perder direitos.",["Manter eleições, fiscalização do governo e proteção dos direitos.","Aumentar a participação dos trabalhadores e da população nas decisões.","Respeitar as leis, os direitos individuais e a divisão dos poderes.","Dar poderes ilimitados ao líder para controlar o país."],"SD ES DL DC"],
+["Poder político, democracia e participação popular","O protesto na praça","Depois do aumento dos preços da energia, milhares de pessoas fazem um protesto pacífico. Alguns prédios públicos são cercados, e o governo pede que o protesto termine.",["Respeitar o direito de protestar e negociar com a população.","Permitir que trabalhadores e moradores organizem o protesto e participem das decisões.","Proteger o protesto pacífico e cuidar dos prédios públicos.","Proibir o protesto e prender os organizadores."],"SD ES DL DC"],
+["Organização do Estado, trabalho e desenvolvimento social","A inteligência artificial substituiu os funcionários","Um sistema automático substituiu centenas de funcionários. O serviço ficou mais rápido, mas muitas famílias perderam renda e o conhecimento dos trabalhadores corre o risco de ser esquecido.",["Oferecer novos cursos, proteção de renda e redução da jornada de trabalho, dividindo os ganhos da tecnologia.","Colocar a tecnologia sob controle social e dividir seus benefícios, diminuindo a dependência de empregos assalariados.","Permitir que as empresas decidam sobre a tecnologia, com liberdade para contratar e incentivar novas ideias.","Substituir os funcionários demitidos por programas obrigatórios de trabalho e disciplina definidos pelo Estado."],"SD ES DL DC"],
+["Liberdade, segurança e controle social","O sistema de pontuação dos cidadãos","Para diminuir fraudes, o governo propõe um cadastro digital que dá pontos aos cidadãos com base em pagamentos, produtividade e comportamento. Pessoas com pontuação baixa podem perder benefícios, transporte ou empregos.",["Limitar o cadastro aos objetivos públicos, protegendo os dados e permitindo contestação e fiscalização independente.","Colocar os dados sob controle coletivo, impedindo seu uso para concentrar poder econômico ou controlar os trabalhadores.","Permitir avaliações privadas e voluntárias, protegendo a liberdade de contratos e limitando a coleta obrigatória de dados pelo Estado.","Criar uma pontuação obrigatória e ampla vigilância, condicionando oportunidades à obediência e à lealdade nacional."],"SD ES DL DC"]
+];
+const A=document.getElementById("app"),T=["🏕️","🌱","🏠","🌾","🏥","🏫","🏭","🌳","🏘️","🏙️"];
+let S;
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function start(){
+A.innerHTML=`<div class="logo">🌱</div><h1>FUTURO<br>EM JOGO</h1>
+<p class="sub">Imagina só: uma pandemia mundial, a <b>AMAD-10</b>, derrubou os governos do planeta inteiro. As fronteiras sumiram, a economia virou uma bagunça e todo mundo teve que se virar para produzir comida, cuidar dos doentes e organizar a vida em grupo. Do caos nasceram países novinhos em folha.</p>
+<p class="sub"><b>Nenhum deles decidiu ainda como vai funcionar.</b> Quem manda? De quem são as fábricas? O que o Estado precisa garantir? Adivinha quem acabou de virar fundador de um país? Vocês.</p>
+<details open><summary>Como jogar</summary><ol><li>Deem um nome ao país e fundem.</li><li>A cada dia surge uma situação-problema. Leiam e, se estiverem em grupo, debatam.</li><li>Escolham <b>uma</b> alternativa. Não dá para voltar atrás!</li><li>Depois de 10 decisões, o mapa de Nolan mostra para onde o país foi: social-democracia, esquerda estatista, direita libertária, direita conservadora ou centro.</li></ol></details>
+<details open><summary>Regras de ouro</summary><ul><li>Não existe resposta certa ou errada.</li><li>Debatam ideias, não pessoas.</li><li>Conhecer uma ideologia não é o mesmo que concordar com ela.</li><li>Pensem nas consequências: quem ganha e quem perde com cada alternativa?</li></ul></details>
+<input id="nm" maxlength="24" placeholder="Nome do seu país" autocomplete="off">
+<button class="btn" id="go">Fundar o país</button>
+<p class="mut">As situações aparecem em ordem aleatória e as alternativas também. Não existe resposta certa: escolham o que realmente acham melhor.</p>`;
+document.getElementById("go").onclick=()=>{S={n:document.getElementById("nm").value.trim()||"Novo País",q:shuf(Q).slice(0,10),i:0,p:[],ch:[]};play()}}
+function play(){
+const q=S.q[S.i],c=q[4].split(" "),o=shuf([0,1,2,3]);
+A.innerHTML=`<div class="hud"><span>🚩 ${esc(S.n)}</span><span>Dia ${S.i+1}/10</span></div>
+<div class="bar"><i style="width:${S.i*10}%"></i></div>
+<div class="town">${T.slice(0,S.i+1).join("")}</div>
+<div class="card"><small>${q[0]}</small><h2>${q[1]}</h2><p>${q[2]}</p></div>
+${o.map((k,n)=>`<button class="opt" data-c="${c[k]}"><b>${"ABCD"[n]}</b><span>${q[3][k]}</span></button>`).join("")}`;
+A.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+if(S.lock)return;S.lock=1;b.classList.add("on");
+const k=b.dataset.c,d=K[k].d,l=S.p[S.p.length-1]||[0,0];
+S.ch.push([q[1],k]);S.p.push([l[0]+d[0],l[1]+d[1]]);
+setTimeout(()=>{S.lock=0;inter(k)},350)});
+scrollTo(0,0)}
+function inter(k){
+const d=S.i+1,last=d==10;
+A.innerHTML=`<div class="hud"><span>🚩 ${esc(S.n)}</span><span>Fim do dia ${d}</span></div><div class="bar"><i style="width:${d*10}%"></i></div><div class="town">${T.slice(0,d).join("")}</div>
+<div class="card"><small>Diário do país</small><p>${R[k]}</p><p class="mut" style="text-align:left;margin-top:10px">🌙 ${N[S.i]}</p></div>
+<button class="btn" id="nx">${last?"Ver o resultado":"Próxima decisão"}</button>`;
+document.getElementById("nx").onclick=()=>{S.i++;last?end():play()};scrollTo(0,0)}
+function map(p){
+const u=20,o=210,X=x=>o+x*u,Y=y=>o-y*u;
+let s=`<svg viewBox="0 0 420 420" class="map"><rect x="10" y="10" width="200" height="200" fill="#fbdde0"/><rect x="210" y="10" width="200" height="200" fill="#d9e9fb"/><rect x="10" y="210" width="200" height="200" fill="#e6def8"/><rect x="210" y="210" width="200" height="200" fill="#fdeccf"/><rect x="170" y="170" width="80" height="80" fill="#cfe8cf" stroke="#5a9a5a" stroke-dasharray="5 4" stroke-width="2"/>`;
+for(let i=0;i<=20;i++){const v=10+i*20,w=i%5?.5:1;s+=`<path d="M${v} 10V410M10 ${v}H410" stroke="#999" stroke-width="${w}"/>`}
+s+=`<path d="M210 10V410M10 210H410" stroke="#000" stroke-width="2"/><rect x="10" y="10" width="400" height="400" fill="none" stroke="#1f3b6b" stroke-width="3"/>
+<g font-size="10" font-weight="700" font-family="sans-serif"><text x="16" y="24" fill="#8a1c2b">Social-democracia</text><text x="404" y="24" text-anchor="end" fill="#17408a">Direita libertária</text><text x="16" y="404" fill="#3b2a78">Esquerda estatista</text><text x="404" y="404" text-anchor="end" fill="#7a4b00">Direita conservadora</text><text x="210" y="232" text-anchor="middle" fill="#2f6b2f">CENTRO</text></g>`;
+const pts=[[0,0],...p];
+s+=`<polyline fill="none" stroke="#1f3b6b" stroke-width="2.5" points="${pts.map(a=>X(a[0])+","+Y(a[1])).join(" ")}"/>`;
+pts.forEach((a,i)=>{const last=i==pts.length-1;s+=`<circle cx="${X(a[0])}" cy="${Y(a[1])}" r="${last?9:4}" fill="${last?"#e8872b":"#fff"}" stroke="#1f3b6b" stroke-width="2"/>`;if(i&&!last)s+=`<text x="${X(a[0])+6}" y="${Y(a[1])-6}" font-size="9" fill="#1f3b6b" font-family="sans-serif">${i}</text>`});
+return s+"</svg>"}
+function end(){
+const[x,y]=S.p[9],n={SD:0,ES:0,DL:0,DC:0};S.ch.forEach(c=>n[c[1]]++);
+let v;
+if(Math.abs(x)<=2&&Math.abs(y)<=2)v={n:"Centro",t:"Seu país mistura ideias de lados diferentes: nenhuma corrente venceu com folga."};
+else if(!x||!y){const a=!x?(y>0?["SD","DL"]:["ES","DC"]):(x<0?["SD","ES"]:["DL","DC"]);v={n:"Fronteira: "+K[a[0]].n+" e "+K[a[1]].n,t:"Seu país caiu exatamente em cima de uma linha do mapa, entre dois quadrantes."}}
+else{const c=x<0?(y>0?"SD":"ES"):(y>0?"DL":"DC");v={c,n:K[c].n+" ("+K[c].s+")",t:K[c].t}}
+const L=n.SD+n.ES,Q2=n.DL+n.DC,U=n.SD+n.DL,D=n.ES+n.DC,tt=v.c?S.ch.filter(c=>c[1]==v.c).slice(0,3).map(c=>"“"+c[0]+"”").join(", "):"";
+const why=`<p>No <b>eixo da economia</b> (horizontal), ${L} decisões foram para o lado do Estado ou do coletivo e ${Q2} para o lado do mercado: ${Q2} − ${L} = <b>${x}</b>.</p><p>No <b>eixo das liberdades</b> (vertical), ${U} decisões ampliaram a liberdade pessoal e ${D} aumentaram o controle: ${U} − ${D} = <b>${y}</b>.</p><p>${tt?"As decisões que mais puxaram o país para cá: "+tt+". Quanto mais longe do centro, mais coerentes foram as escolhas.":"Suas escolhas ficaram divididas (SD "+n.SD+", ES "+n.ES+", DL "+n.DL+", DC "+n.DC+"), e os passos para um lado compensaram os do outro."}</p><p class="mut" style="text-align:left">Não existe resultado certo ou errado. Isto é uma aproximação didática: na vida real, as ideias se misturam.</p>`;
+const txt=`País ${S.n}: ponto (${x}, ${y}) = ${v.n}. Escolhas: SD ${n.SD}, ES ${n.ES}, DL ${n.DL}, DC ${n.DC}.`;
+A.innerHTML=`<div class="hud"><span>🚩 ${esc(S.n)}</span><span>Fim de jogo</span></div>
+<div class="card"><small>Veredito</small><div class="big">${v.n}</div><p>${v.t}</p><p class="mut" style="text-align:left;margin-top:8px">Ponto final no mapa: (${x}, ${y})</p></div>
+${map(S.p)}
+<p class="mut">Horizontal: mais Estado na economia ← → mais mercado. Vertical: mais controle ↓ ↑ mais liberdade pessoal. A zona verde é o centro.</p>
+<div class="card"><small>O que é isso?</small>${v.c?E[v.c]:E[v.n=="Centro"?"C":"F"]}</div><div class="card"><small>Por que deu esse resultado?</small>${why}</div><div class="card"><small>Suas escolhas</small>${S.ch.map((c,i)=>`<div class="ch"><span>${i+1}. ${c[0]}</span><span>${K[c[1]].n}</span></div>`).join("")}</div>
+<button class="btn g" id="cp">Copiar resultado</button><button class="btn" id="ag" style="margin-top:14px">Jogar de novo</button>`;
+document.getElementById("ag").onclick=start;
+document.getElementById("cp").onclick=async e=>{try{await navigator.clipboard.writeText(txt);e.target.textContent="Copiado!"}catch(_){e.target.textContent="Não foi possível copiar"}};
+scrollTo(0,0)}
+start();
+</script></body></html>
