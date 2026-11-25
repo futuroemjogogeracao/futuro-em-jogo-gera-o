@@ -1,1 +1,1 @@
-# futuro-em-jogo-gera-o
+# futuro-em-jogo-geraçao
